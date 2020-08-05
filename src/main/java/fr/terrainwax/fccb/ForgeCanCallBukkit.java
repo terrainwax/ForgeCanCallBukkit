@@ -1,49 +1,67 @@
 package fr.terrainwax.fccb;
 
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
-import org.spongepowered.asm.launch.MixinBootstrap;
-import org.spongepowered.asm.mixin.Mixins;
+import net.minecraft.launchwrapper.Launch;
+
+import net.minecraft.launchwrapper.LaunchClassLoader;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
+import org.apache.commons.lang3.reflect.MethodUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.SimplePluginManager;
+import org.bukkit.plugin.java.JavaPluginLoader;
+
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-@IFMLLoadingPlugin.MCVersion("1.12.2")
-public class ForgeCanCallBukkit implements IFMLLoadingPlugin {
+@Mod(modid = "fccb", name = "ForgeCanCallBukkit", version = "1.0.0", acceptableRemoteVersions = "*")
+public class ForgeCanCallBukkit  {
 
-    public ForgeCanCallBukkit() throws Exception {
+    @Mod.EventHandler
+    public void onServerLoaded(FMLServerStartedEvent event)
+    {
         try {
-            this.getClass().getClassLoader().getClass().getDeclaredMethod("addChild", ClassLoader.class);
-        } catch (NoSuchMethodException e) {
-            throw new Exception("You need to install custom Minecraft LaunchWrapper - see github readme");
+            Field f = SimplePluginManager.class.getDeclaredField("fileAssociations");
+            f.setAccessible(true);
+            Map m = (Map) f.get(Bukkit.getPluginManager());
+            m.forEach((pattern, pluginLoader) -> {
+                try {
+                    Field all = JavaPluginLoader.class.getDeclaredField("loaders");
+                    all.setAccessible(true);
+                    List loaders = (List) all.get(pluginLoader);
+                    loaders.forEach((loader) -> {
+                        Method methode = null;
+                        try {
+                            Field floaded = loader.getClass().getDeclaredField("classes");
+                            floaded.setAccessible(true);
+                            Map allLoaded = (Map) floaded.get(loader);
+                            Field invalideField = LaunchClassLoader.class.getDeclaredField("invalidClasses");
+                            invalideField.setAccessible(true);
+                            Set invalide = (Set) invalideField.get(this.getClass().getClassLoader());
+                            invalide.removeAll(allLoaded.keySet());
+                            methode = this.getClass().getClassLoader().getClass().getDeclaredMethod("addChild", ClassLoader.class);
+                            methode.invoke(this.getClass().getClassLoader(), loader);
+                        } catch (NoSuchMethodException e) {
+                            e.printStackTrace();
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        } catch (InvocationTargetException e) {
+                            e.printStackTrace();
+                        } catch (NoSuchFieldException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            });
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
         }
-        MixinBootstrap.init();
-        Mixins.addConfiguration("mixins.fccb.json");
-    }
-
-    @Override
-    public String[] getASMTransformerClass() {
-        return new String[0];
-    }
-
-    @Override
-    public String getModContainerClass() {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public String getSetupClass() {
-        return null;
-    }
-
-    @Override
-    public void injectData(Map<String, Object> data) {
-
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
-        return null;
     }
 }

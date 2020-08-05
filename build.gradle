@@ -1,9 +1,5 @@
 buildscript {
     repositories {
-        maven {
-            name = "spongepowered"
-            url = "https://repo.spongepowered.org/maven"
-        }
 
         maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
@@ -12,8 +8,6 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
-        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
-        classpath "com.github.jengelman.gradle.plugins:shadow:5.1.0"
     }
 }
 
@@ -29,8 +23,6 @@ allprojects {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
-apply plugin: 'org.spongepowered.mixin'
-apply plugin: "com.github.johnrengelman.shadow"
 
 
 version = '1.0'
@@ -38,10 +30,6 @@ group = 'fr.terrainwax.fccb'
 archivesBaseName = 'fccb'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
-
-mixin {
-    add sourceSets.main, "fccb.refmap.json"
-}
 
 minecraft {
     mappings channel: 'snapshot', version: '20171003-1.12'
@@ -72,10 +60,6 @@ minecraft {
     }
 }
 
-configurations {
-    shade
-    compile.extendsFrom shade
-}
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
@@ -83,9 +67,6 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
 
     compile("org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT")
-    compile("org.spongepowered:mixin:0.8") {
-        transitive = false
-    }
 
 }
 
@@ -98,28 +79,8 @@ jar {
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            'FMLCorePlugin': 'fr.terrainwax.fccb.ForgeCanCallBukkit',
-            'FMLCorePluginContainsMod': 'true'
         ])
     }
 }
 
 jar.finalizedBy('reobfJar')
-
-shadowJar {
-    dependencies {
-        include(dependency("org.spongepowered:mixin"))
-    }
-
-    exclude 'dummyThing'
-    exclude 'LICENSE.txt'
-    classifier = 'full'
-}
-
-reobf {
-    shadowJar {
-        classpath = sourceSets.main.compileClasspath
-    }
-}
-
-build.dependsOn(shadowJar)
