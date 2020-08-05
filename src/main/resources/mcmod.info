@@ -1,0 +1,16 @@
+[
+{
+  "modid": "forgecancallbukkit",
+  "name": "ForgeCanCallBukkit",
+  "description": "This mod is a server side mod only and must not be used on client.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Terrainwax"],
+  "credits": "The Forge and FML guys, for API",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

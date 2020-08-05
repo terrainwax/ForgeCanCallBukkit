@@ -1,0 +1,113 @@
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        jcenter()
+        mavenCentral()
+        maven {
+            name = "spongepowered"
+            url = "https://repo.spongepowered.org/maven"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+        classpath "com.github.jengelman.gradle.plugins:shadow:5.1.0"
+    }
+}
+        
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+apply plugin: 'org.spongepowered.mixin'
+apply plugin: "com.github.johnrengelman.shadow"
+
+
+version = '1.0'
+group = 'fr.terrainwax.fccb'
+archivesBaseName = 'fccb'
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+
+mixin {
+    add sourceSets.main, "fccb.refmap.json"
+}
+
+minecraft {
+    mappings channel: 'snapshot', version: '20171003-1.12'
+
+    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+    
+    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    // Default run configurations.
+    // These can be tweaked, removed, or duplicated as needed.
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        server {
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
+}
+
+configurations {
+    shade
+    compile.extendsFrom shade
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: '*.jar')
+
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
+
+    compile("org.spongepowered:mixin:0.8") {
+        transitive = false
+    }
+
+}
+
+jar {
+
+    manifest {
+        attributes([
+            "Specification-Title": "fccb",
+            "Specification-Version": "1", // We are version 1 of ourselves
+            "Implementation-Title": project.name,
+            "Implementation-Version": "${version}",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            'FMLCorePlugin': 'fr.terrainwax.fccb.ForgeCanCallBukkit',
+            'FMLCorePluginContainsMod': 'true'
+        ])
+    }
+}
+
+jar.finalizedBy('reobfJar')
+
+shadowJar {
+    dependencies {
+        include(dependency("org.spongepowered:mixin"))
+    }
+
+    exclude 'dummyThing'
+    exclude 'LICENSE.txt'
+    classifier = 'full'
+}
+
+reobf {
+    shadowJar {
+        classpath = sourceSets.main.compileClasspath
+    }
+}
+
+build.dependsOn(shadowJar)

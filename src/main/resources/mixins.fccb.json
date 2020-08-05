@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "fr.terrainwax.fccb.mixin",
+  "refmap": "mixins.fccb.refmap.json",
+  "target": "@env(PREINIT)",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "server": [
+    "bukkit.plugin.IMixinPluginLoader"
+  ]
+}
