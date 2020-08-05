@@ -1,6 +1,5 @@
 package fr.terrainwax.fccb.mixin.bukkit.plugin;
 
-import fr.terrainwax.fccb.IAddChild;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.bukkit.plugin.Plugin;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,6 +19,7 @@ public abstract class IMixinPluginLoader {
         if (this.getClass().getClassLoader() != null && this.getClass().getClassLoader() instanceof LaunchClassLoader)
         {
             try {
+
                 Method methode = this.getClass().getClassLoader().getClass().getDeclaredMethod("addChild", ClassLoader.class);
                 methode.invoke(this.getClass().getClassLoader(), loader);
             }catch(Exception e)

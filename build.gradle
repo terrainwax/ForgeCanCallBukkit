@@ -1,17 +1,28 @@
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
-        jcenter()
-        mavenCentral()
         maven {
             name = "spongepowered"
             url = "https://repo.spongepowered.org/maven"
         }
+
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        jcenter()
+        mavenCentral()
+
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
         classpath "com.github.jengelman.gradle.plugins:shadow:5.1.0"
+    }
+}
+
+allprojects {
+    repositories {
+        maven {
+            name = "spigot-repo"
+            url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots"
+        }
     }
 }
         
@@ -71,6 +82,7 @@ dependencies {
 
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
 
+    compile("org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT")
     compile("org.spongepowered:mixin:0.8") {
         transitive = false
     }
