@@ -8,3 +8,6 @@ You need to install this coremod in you server ONLY
 To allow this coremod to work correctly you need to replace in your library 
 net.minecraft.launchwrapper.1.12 by this [one](https://github.com/terrainwax/LegacyLauncher)
 
+## Instruction
+You can call plugins from FMLServerStartedEvent and after before this event plugin are not loaded yet
+
